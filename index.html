@@ -75,7 +75,7 @@
         backdrop-filter: blur(10px);
         border-bottom: 1px solid var(--line);
       }
-      .topbar-in { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; }
+      .topbar-in { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px; }
       .wordmark { display: flex; align-items: center; gap: 10px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--ink); text-decoration: none; }
       .wordmark .dot { width: 34px; height: 34px; border-radius: 50%; background: var(--brand-soft); display: grid; place-items: center; font-size: 18px; }
       .wordmark small { display: block; font-family: "Outfit", sans-serif; font-weight: 500; font-size: 0.72rem; color: var(--ink-faint); letter-spacing: 0.04em; }
@@ -354,7 +354,7 @@
       }
       .topbar.visible { transform: translateY(0); }
       @media (prefers-reduced-motion: reduce) { .topbar { transition: none; } }
-      .topbar-in { padding: 18px 0; }
+      .topbar-in { padding-block: 18px; }
       .wordmark { font-family: "DM Sans", system-ui, sans-serif; font-weight: 600; font-size: 1.3rem; }
       .wordmark .dot { background: var(--brand-soft); width: 36px; height: 36px; font-size: 16px; }
       .wordmark small { font-family: "DM Sans", system-ui, sans-serif; font-weight: 400; letter-spacing: 0.18em; font-size: 0.62rem; }
@@ -460,14 +460,21 @@
       .hero-grid .hero-logo, .hero-grid .hero-ctas { justify-content: flex-end; }
       .hero-grid .hero-logo > span:last-child { text-align: right; }
       @media (min-width: 861px) { .hero-grid > div:not(.hero-visual) { transform: translateX(60px); } }
-      @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; gap: 44px; } .hero { padding: 0; } .hero-grid { padding-top: 44px; padding-bottom: 44px; } }
+      @media (max-width: 860px) { .hero-grid .hero-logo { justify-content: flex-start; } .hero-grid .hero-logo > span:last-child { text-align: left; } .hero-grid h1 { text-align: left; }
+        .hero-grid > div:not(.hero-visual) { display: contents; }
+        .hero-grid .hero-logo { order: 1; }
+        .hero-grid h1 { order: 2; margin-bottom: 44px; }
+        .hero-grid .hero-visual { order: 3; }
+        .hero-grid .hero-ctas { order: 4; justify-content: center; margin-top: 32px; }
+      }
+      @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; gap: 0; } .hero { padding: 0; } .hero-grid { padding-top: 44px; padding-bottom: 44px; } }
       .hero-tag {
         background: transparent; border: 1px solid var(--sage); color: var(--sage-deep);
         font-weight: 400; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
         padding: 8px 16px; margin-bottom: 26px;
       }
-      .hero h1 { font-size: clamp(0.85rem, 1.2vw, 1.05rem); line-height: 1.3; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; }
-      .hero h1 .hl { display: block; margin-top: 14px; color: #fff; font-style: normal; font-weight: 700; font-size: clamp(3.2rem, 7vw, 6.4rem); line-height: 1; letter-spacing: -0.035em; text-transform: none; }
+      .hero h1 { font-size: clamp(0.85rem, 1.5vw, 1.5rem); line-height: 1.3; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; }
+      .hero h1 .hl { display: block; margin-top: 14px; color: #fff; font-style: normal; font-weight: 700; font-size: clamp(3.2rem, 7.2vw, 7.2rem); line-height: 1; letter-spacing: -0.035em; text-transform: none; }
       .hero .lede { margin-top: 24px; font-size: 1.08rem; font-weight: 300; }
       .hero-ctas { margin-top: 36px; gap: 14px; }
       .hero-note { font-size: 0.88rem; }
@@ -483,7 +490,7 @@
       .float-card { border-color: var(--line); box-shadow: var(--shadow); border-radius: 14px; padding: 10px 15px; }
       .float-card .fc-big { font-family: "DM Sans", system-ui, sans-serif; font-weight: 600; font-size: 1.25rem; }
       .fc-rating { left: -22px; }
-      .fc-meds { right: auto; left: 50%; top: 0; bottom: auto; transform: translate(-50%, -55%); z-index: 2; white-space: nowrap; }
+      .fc-meds { right: auto; left: 50%; top: 0; bottom: auto; transform: translate(-50%, -112%); z-index: 2; white-space: nowrap; }
       .fc-meds .med-ico { background: var(--brand-soft); border-radius: 50%; }
 
       .stats { margin-top: 76px; background: transparent; border: none; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; box-shadow: none; }
@@ -557,7 +564,7 @@
       .reviews-copy h3 { font-size: 1.6rem; font-weight: 500; }
       .reviews-copy p, .proof-list li { font-weight: 300; }
       .coverflow { margin-top: 24px; outline: none; }
-      .cf-stage { position: relative; perspective: 1500px; height: var(--cf-h, 520px); overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+      .cf-stage { position: relative; perspective: 1500px; height: var(--cf-h, 520px); transition: height 0.4s ease; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
       .review-card { position: absolute; top: 0; left: 50%; width: min(460px, 80vw); display: flex; flex-direction: column; margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px 28px 24px; box-shadow: 0 24px 50px -28px rgba(67, 58, 52, 0.45); cursor: pointer; transition: transform 0.7s cubic-bezier(0.22, 0.8, 0.28, 1), opacity 0.7s ease; will-change: transform, opacity; backface-visibility: hidden; }
             .review-card footer { margin-top: auto; }
       .review-card header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -568,6 +575,13 @@
       .cf-btn:hover { background: var(--brand-soft); border-color: var(--brand); }
       .cf-count { min-width: 56px; text-align: center; font-size: 0.85rem; letter-spacing: 0.08em; color: var(--ink-soft); }
       @media (prefers-reduced-motion: reduce) { .review-card { transition: none; } }
+      @media (max-width: 720px) {
+        .review-card { padding: 22px 20px 18px; width: min(460px, 84vw); }
+        .review-card p { font-size: 0.95rem; line-height: 1.6; }
+        .review-card p.is-clamped { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden; }
+        .review-card .rc-more { align-self: flex-start; margin: 8px 0 4px; padding: 6px 0; background: none; border: 0; font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--brand-deep); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+        .reviews-band { display: none; }
+      }
       .review-card .stars { color: var(--star); letter-spacing: 3px; font-size: 0.9rem; margin: 6px 0 12px; }
       .review-card p { color: var(--ink-soft); font-weight: 400; line-height: 1.65; }
       .review-card footer { padding-top: 14px; border-top: 1px solid var(--line); letter-spacing: 0.02em; }
@@ -601,7 +615,7 @@
       footer { padding: 60px 0 70px; }
       footer .foot-brand { font-family: "DM Sans", system-ui, sans-serif; font-weight: 600; font-size: 1.15rem; }
       @media (max-width: 720px) {
-        .topbar-in { padding: 12px 0; gap: 8px; }
+        .topbar-in { padding-block: 12px; gap: 8px; }
         .wordmark { font-size: 1.08rem; gap: 7px; }
         .wordmark .dot { width: 30px; height: 30px; font-size: 13px; }
         .wordmark small { display: none; }
@@ -609,6 +623,7 @@
         .btn.small { padding: 9px 15px; font-size: 0.68rem; }
         .hero h1 { font-size: 0.8rem; }
         .hero h1 .hl { font-size: 3.2rem; }
+        .hero-visual { margin-top: 36px; }
         .hero-tag { font-size: 0.64rem; line-height: 1.6; }
         .hero-logo .dot { width: 56px; height: 56px; font-size: 26px; }
         .hero-logo > span:last-child { font-size: 1.6rem; }
@@ -691,6 +706,24 @@
       #bkError { color: var(--brand-deep); text-align: center; margin-top: 12px; font-size: 0.9rem; }
       #bkError:empty { display: none !important; }
       .request-out { margin-top: 24px; }
+
+      /* Calmer mobile hero */
+      @media (max-width: 720px) {
+        .hero .stat { padding: 6px 20px; }
+        .hero .stat .lbl { font-size: 0.62rem; letter-spacing: 0.08em; }
+        .hero-grid { padding-top: 40px; padding-bottom: 40px; }
+        .hero-logo { gap: 12px; margin-bottom: 40px; text-shadow: 0 1px 12px rgba(30, 55, 80, 0.25); }
+        .hero-logo .dot { width: 44px; height: 44px; font-size: 20px; }
+        .hero-logo > span:last-child { font-size: 1.25rem; }
+        .hero-logo small { font-size: 0.55rem; letter-spacing: 0.16em; margin-top: 4px; }
+        .hero h1 { font-size: 0.72rem; letter-spacing: 0.2em; text-shadow: 0 1px 12px rgba(30, 55, 80, 0.25); }
+        .hero h1 .hl { font-size: 3.6rem; margin-top: 10px; }
+        .hero-grid h1 { margin-bottom: 20px; }
+        .fc-meds { display: none; }
+        .hero-visual { margin-top: 0; max-width: 340px; }
+        .hero-grid .hero-ctas { width: 100%; flex-wrap: nowrap; gap: 10px; margin-top: 20px; }
+        .hero-grid .hero-ctas .btn { flex: 1; justify-content: center; text-align: center; padding-inline: 12px; }
+      }
     </style>
   </head>
   <body>
@@ -732,7 +765,7 @@
               <span class="dot" aria-hidden="true">🐾</span>
               <span>Kelly's Cat Sitting<small>NAVY YARD · WASHINGTON, DC</small></span>
             </a>
-            <h1>Cat sitting for cats who need <span class="hl">more than a check-in.</span></h1>
+            <h1>Meowtel&#8209;Verified <span class="hl">Cat Sitter</span></h1>
             <div class="hero-ctas">
               <a class="btn" href="#book">Book a visit</a>
               <a class="btn ghost" href="#rates">See rates</a>
@@ -1572,9 +1605,40 @@
               card.setAttribute("aria-hidden", d === 0 ? "false" : "true");
             });
             cfCount.textContent = (cfActive + 1) + " / " + cfCards.length;
+            // On phones the stage follows the active card so a long review doesn't stretch every card
+            if (narrow) cfStage.style.setProperty("--cf-h", (cfCards[cfActive].offsetHeight + 24) + "px");
+          }
+          // On phones long reviews are clamped to 5 lines with a Read more toggle
+          function setupReadMore() {
+            var narrow = window.innerWidth < 720;
+            cfCards.forEach(function (card) {
+              var p = card.querySelector("p");
+              var old = card.querySelector(".rc-more");
+              if (old) old.remove();
+              p.classList.remove("is-clamped");
+              if (!narrow) return;
+              p.classList.add("is-clamped");
+              if (p.scrollHeight <= p.clientHeight + 1) { p.classList.remove("is-clamped"); return; }
+              var btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "rc-more";
+              btn.textContent = "Read more";
+              btn.setAttribute("aria-expanded", "false");
+              btn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                var open = p.classList.toggle("is-clamped") === false;
+                btn.textContent = open ? "Show less" : "Read more";
+                btn.setAttribute("aria-expanded", open ? "true" : "false");
+                layoutCover();
+              });
+              btn.addEventListener("keydown", function (e) { e.stopPropagation(); });
+              p.after(btn);
+            });
           }
           function sizeCover() {
             cfCards.forEach(function (c) { c.style.height = "auto"; });
+            setupReadMore();
+            if (window.innerWidth < 720) return;
             var tallest = 0;
             cfCards.forEach(function (c) { tallest = Math.max(tallest, c.offsetHeight); });
             cfCards.forEach(function (c) { c.style.height = tallest + "px"; });
@@ -1702,7 +1766,9 @@
           }
         }
 
-        for (var i = 1; i <= catFrameCount; i++) {
+        // Phones and tablets load every other frame to halve the data; drawCat falls back to the previous loaded frame
+        var catCoarse = window.matchMedia("(hover: none), (max-width: 720px)").matches;
+        for (var i = 1; i <= catFrameCount; i += catCoarse ? 2 : 1) {
           var im = new Image();
           im.decoding = "async";
           im.src = "cat-frames/frame-" + String(i).padStart(3, "0") + ".jpg";
@@ -1712,34 +1778,41 @@
         var heroEl = document.querySelector(".hero");
         var catFps = 36;
         var catSpeed = 0;
+        var catDir = 1;
         var catLastMove = -1e9;
         var catLastTs = 0;
+        var catReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        // Touch screens have no cursor to track, so the frames loop on their own while the hero is on screen
+        var catAuto = window.matchMedia("(hover: none)").matches && !catReduced;
         function tickCat(now) {
           var dt = Math.min(0.05, (now - catLastTs) / 1000);
           catLastTs = now;
-          var moving = now - catLastMove < 100;
+          var moving = catAuto || now - catLastMove < 100;
           // Ease in while the cursor moves; ease out to a halt over 0.5s once it stops
           if (moving) catSpeed = Math.min(catFps, catSpeed + catFps / 0.3 * dt);
           else catSpeed = Math.max(0, catSpeed - catFps / 0.5 * dt);
-          catPos = Math.min(catFrameCount, catPos + catSpeed * dt);
+          catPos += catDir * catSpeed * dt;
+          // Bounce off either end so the frames loop back and forth
+          if (catPos >= catFrameCount) { catPos = catFrameCount; catDir = -1; }
+          else if (catPos <= 1) { catPos = 1; catDir = 1; }
           drawCat(Math.round(catPos));
-          var done = catPos >= catFrameCount || (!moving && catSpeed === 0);
-          catRaf = done ? 0 : requestAnimationFrame(tickCat);
+          catRaf = !moving && catSpeed === 0 ? 0 : requestAnimationFrame(tickCat);
+        }
+        if (catAuto && "IntersectionObserver" in window) {
+          new IntersectionObserver(function (entries) {
+            catAuto = entries[0].isIntersecting;
+            if (catAuto && !catRaf) { catLastTs = performance.now(); catRaf = requestAnimationFrame(tickCat); }
+          }).observe(heroEl);
+        } else if (catAuto) {
+          catRaf = requestAnimationFrame(function (t) { catLastTs = t; tickCat(t); });
         }
         heroEl.addEventListener("pointermove", function (event) {
           if (event.pointerType === "touch") return;
           catLastMove = performance.now();
-          if (!catRaf && catPos < catFrameCount) {
+          if (!catRaf) {
             catLastTs = catLastMove;
             catRaf = requestAnimationFrame(tickCat);
           }
-        });
-        // Leaving the hero after the last frame resets it so it can play again
-        heroEl.addEventListener("pointerleave", function () {
-          if (catPos < catFrameCount) return;
-          catPos = 1;
-          catSpeed = 0;
-          drawCat(1);
         });
       })();
     </script>
