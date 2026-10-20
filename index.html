@@ -434,7 +434,7 @@
         border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.7);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
       }
-      .hero .stats-grid { display: flex; width: max-content; animation: stats-marquee 60s linear infinite; }
+      .hero .stats-grid { display: flex; width: max-content; animation: stats-marquee 30s linear infinite; }
       .hero .stat { flex: none; display: flex; align-items: baseline; gap: 8px; padding: 7px 28px; border: none !important; text-align: left; white-space: nowrap; }
       .hero .stat::after { content: "·"; margin-left: 28px; color: var(--sage-deep); font-size: 1rem; }
       .hero .stat .num, .hero .stat .lbl { margin: 0; font-family: "DM Sans", system-ui, sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1; }
@@ -464,6 +464,7 @@
       .hero-grid > div:not(.hero-visual) { text-align: right; }
       .hero-grid .hero-logo, .hero-grid .hero-ctas { justify-content: flex-end; }
       .hero-grid .hero-logo > span:last-child { text-align: right; }
+      @media (min-width: 861px) { .hero-grid > div:not(.hero-visual) { transform: translateX(60px); } }
       @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; gap: 44px; } .hero { padding: 0; } .hero-grid { padding-top: 44px; padding-bottom: 44px; } }
       .hero-tag {
         background: transparent; border: 1px solid var(--sage); color: var(--sage-deep);
@@ -1722,28 +1723,45 @@
           catImages[i] = im;
         }
 
-        function tickCat() {
-          var diff = catTarget - catPos;
-          // Ease toward the target but never advance more than one frame per tick,
-          // so every frame between here and the target plays in order
-          var step = Math.max(-1, Math.min(1, diff * 0.18));
-          if (Math.abs(diff) < 0.02) catPos = catTarget;
-          else catPos += step;
-          drawCat(Math.round(catPos));
-          catRaf = catPos === catTarget ? 0 : requestAnimationFrame(tickCat);
+        var heroEl = document.querySelector(".hero");
+        var catFps = 36;
+        var catStopEvery = 2 * catFps;
+        var catLastMove = -1e9;
+        var catLastTs = 0;
+        var catHold = 0;
+        function nextCatStop(pos) {
+          var stop = 1 + Math.ceil((pos - 1) / catStopEvery - 1e-6) * catStopEvery;
+          if (stop <= pos + 1e-6) stop += catStopEvery;
+          return Math.min(catFrameCount, stop);
         }
-        function kickCat() { if (!catRaf) catRaf = requestAnimationFrame(tickCat); }
-
-        window.addEventListener("pointermove", function (event) {
+        function tickCat(now) {
+          var dt = Math.min(0.1, (now - catLastTs) / 1000);
+          catLastTs = now;
+          var moving = now - catLastMove < 150;
+          if (moving) catHold = 0;
+          else if (!catHold) catHold = nextCatStop(catPos);
+          catPos += dt * catFps;
+          if (!moving && catPos >= catHold) catPos = catHold;
+          if (catPos >= catFrameCount) catPos = catFrameCount;
+          drawCat(Math.round(catPos));
+          var atStop = !moving && catPos === catHold;
+          catRaf = catPos >= catFrameCount || atStop ? 0 : requestAnimationFrame(tickCat);
+        }
+        // Cursor movement plays the frames; when it stops, playback runs on to the next 2-second stop point
+        heroEl.addEventListener("pointermove", function (event) {
           if (event.pointerType === "touch") return;
-          var position = Math.max(0, Math.min(1, event.clientX / window.innerWidth));
-          catTarget = 1 + position * (catFrameCount - 1);
-          kickCat();
+          catLastMove = performance.now();
+          if (!catRaf && catPos < catFrameCount) {
+            catLastTs = catLastMove;
+            catHold = 0;
+            catRaf = requestAnimationFrame(tickCat);
+          }
         });
-
-        document.documentElement.addEventListener("pointerleave", function () {
-          catTarget = 1;
-          kickCat();
+        // Leaving the hero after the last frame resets it so it can play again
+        heroEl.addEventListener("pointerleave", function () {
+          if (catPos < catFrameCount) return;
+          catPos = 1;
+          drawCat(1);
         });
       })();
     </script>
