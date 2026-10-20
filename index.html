@@ -300,11 +300,6 @@
       .copied-msg { font-size: 0.88rem; color: var(--good); font-weight: 600; align-self: center; }
 
       /* ---------- final cta / footer ---------- */
-      .final-cta { margin: 64px 0 0; background: var(--brand); border-radius: var(--radius-lg); padding: 44px 32px; text-align: center; color: #fff; }
-      .final-cta h2 { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 800; color: #fff; }
-      .final-cta p { margin: 12px auto 24px; max-width: 36em; color: var(--brand-soft); }
-      .final-cta .btn { background: #fff; color: var(--brand-deep); box-shadow: 0 10px 24px -10px rgba(0,0,0,0.4); }
-      .final-cta .btn:hover { background: var(--brand-soft); }
       footer { padding: 34px 0 46px; text-align: center; color: var(--ink-faint); font-size: 0.9rem; }
       footer .foot-brand { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; color: var(--ink-soft); font-size: 1rem; margin-bottom: 6px; }
 
@@ -564,8 +559,7 @@
       .coverflow { margin-top: 24px; outline: none; }
       .cf-stage { position: relative; perspective: 1500px; height: var(--cf-h, 520px); overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
       .review-card { position: absolute; top: 0; left: 50%; width: min(460px, 80vw); display: flex; flex-direction: column; margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px 28px 24px; box-shadow: 0 24px 50px -28px rgba(67, 58, 52, 0.45); cursor: pointer; transition: transform 0.7s cubic-bezier(0.22, 0.8, 0.28, 1), opacity 0.7s ease; will-change: transform, opacity; backface-visibility: hidden; }
-      .review-card.is-active { cursor: default; }
-      .review-card footer { margin-top: auto; }
+            .review-card footer { margin-top: auto; }
       .review-card header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
       .review-card header strong { font-weight: 600; color: var(--ink); }
       .review-card header span, .review-card footer { font-size: 0.8rem; color: var(--ink-faint); }
@@ -604,11 +598,6 @@
       .request-out { border: 1px solid var(--good); border-radius: 14px; }
       .request-out pre { border-color: var(--line); border-radius: 10px; }
 
-      .final-cta { margin-top: 112px; background: var(--brand-soft); border-radius: 18px; padding: 76px 36px; color: var(--ink); }
-      .final-cta h2 { color: var(--ink); font-weight: 500; font-size: clamp(2.1rem, 4.4vw, 3rem); }
-      .final-cta p { color: var(--ink-soft); font-weight: 300; margin: 16px auto 32px; }
-      .final-cta .btn { background: var(--sage-deep); color: #fff; box-shadow: none; }
-      .final-cta .btn:hover { background: #52634d; }
       footer { padding: 60px 0 70px; }
       footer .foot-brand { font-family: "DM Sans", system-ui, sans-serif; font-weight: 600; font-size: 1.15rem; }
       @media (max-width: 720px) {
@@ -873,6 +862,7 @@
               <p class="rate-sub">A longer visit with unhurried company for your cat.</p>
               <ul class="incl">
                 <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Time to coax shy cats out at their own pace</li>
+                <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>High-quality, frame-worthy photos and videos of your cat</li>
               </ul>
             </a>
           </div>
@@ -1135,15 +1125,6 @@
           </div>
         </div>
       </section>
-
-      <!-- FINAL CTA -->
-      <div class="wrap">
-        <div class="final-cta">
-          <h2>Your cat's routine, kept exactly.</h2>
-          <p>Medication on time, recovery checked, seniors watched with a careful eye — and photos in your pocket after every visit.</p>
-          <a class="btn" href="#book">Book a visit</a>
-        </div>
-      </div>
     </main>
 
     <footer>
@@ -1604,8 +1585,13 @@
             layoutCover();
           }
 
-          cfCards.forEach(function (card, i) {
-            card.addEventListener("click", function () { if (!dragMoved) goCover(i); });
+          var REVIEWS_URL = "https://meowtel.com/cat-sitters/DC/washington/cat-lover-and-experienced-cat-sitter-7a6796?source=search-map#reviews";
+          function openReviews() { window.open(REVIEWS_URL, "_blank", "noopener"); }
+          cfCards.forEach(function (card) {
+            card.setAttribute("role", "link");
+            card.setAttribute("tabindex", "0");
+            card.addEventListener("click", function () { if (!dragMoved) openReviews(); });
+            card.addEventListener("keydown", function (e) { if (e.key === "Enter") openReviews(); });
           });
           document.getElementById("cfPrev").addEventListener("click", function () { goCover(cfActive - 1); });
           document.getElementById("cfNext").addEventListener("click", function () { goCover(cfActive + 1); });
@@ -1725,35 +1711,26 @@
 
         var heroEl = document.querySelector(".hero");
         var catFps = 36;
-        var catStopEvery = 2 * catFps;
+        var catSpeed = 0;
         var catLastMove = -1e9;
         var catLastTs = 0;
-        var catHold = 0;
-        function nextCatStop(pos) {
-          var stop = 1 + Math.ceil((pos - 1) / catStopEvery - 1e-6) * catStopEvery;
-          if (stop <= pos + 1e-6) stop += catStopEvery;
-          return Math.min(catFrameCount, stop);
-        }
         function tickCat(now) {
-          var dt = Math.min(0.1, (now - catLastTs) / 1000);
+          var dt = Math.min(0.05, (now - catLastTs) / 1000);
           catLastTs = now;
-          var moving = now - catLastMove < 150;
-          if (moving) catHold = 0;
-          else if (!catHold) catHold = nextCatStop(catPos);
-          catPos += dt * catFps;
-          if (!moving && catPos >= catHold) catPos = catHold;
-          if (catPos >= catFrameCount) catPos = catFrameCount;
+          var moving = now - catLastMove < 100;
+          // Ease in while the cursor moves; ease out to a halt over 0.5s once it stops
+          if (moving) catSpeed = Math.min(catFps, catSpeed + catFps / 0.3 * dt);
+          else catSpeed = Math.max(0, catSpeed - catFps / 0.5 * dt);
+          catPos = Math.min(catFrameCount, catPos + catSpeed * dt);
           drawCat(Math.round(catPos));
-          var atStop = !moving && catPos === catHold;
-          catRaf = catPos >= catFrameCount || atStop ? 0 : requestAnimationFrame(tickCat);
+          var done = catPos >= catFrameCount || (!moving && catSpeed === 0);
+          catRaf = done ? 0 : requestAnimationFrame(tickCat);
         }
-        // Cursor movement plays the frames; when it stops, playback runs on to the next 2-second stop point
         heroEl.addEventListener("pointermove", function (event) {
           if (event.pointerType === "touch") return;
           catLastMove = performance.now();
           if (!catRaf && catPos < catFrameCount) {
             catLastTs = catLastMove;
-            catHold = 0;
             catRaf = requestAnimationFrame(tickCat);
           }
         });
@@ -1761,6 +1738,7 @@
         heroEl.addEventListener("pointerleave", function () {
           if (catPos < catFrameCount) return;
           catPos = 1;
+          catSpeed = 0;
           drawCat(1);
         });
       })();
