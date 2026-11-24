@@ -1,0 +1,8 @@
+name = "meowkllyncle"
+pages_build_output_dir = "."
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding       = "DB"
+database_name = "kellys-cat-sitting"
+database_id   = "e294f4c4-2003-4b75-8eef-1f7192f2a83a"

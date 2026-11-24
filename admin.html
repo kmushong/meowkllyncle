@@ -13,6 +13,23 @@
           --brand:#8a9f7b; --deep:#62795a; --brand-soft:#e9efe5; --blue:#dceaf4; --warn:#8a6410; --warn-bg:#fbf0d9; --bad:#a03a3a; --bad-bg:#f4e2e2; }
   * { box-sizing: border-box; }
   body { margin:0; font-family:"DM Sans",system-ui,sans-serif; color:var(--ink); background:var(--bg); line-height:1.5; }
+
+  /* ---- Login screen ---- */
+  #loginScreen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; }
+  .login-card { background:var(--bg-soft); border:1px solid var(--line); border-radius:20px; padding:36px 32px; width:100%; max-width:360px; }
+  .login-card h1 { font-size:1.25rem; font-weight:600; margin:0 0 6px; }
+  .login-card p  { color:var(--soft); font-size:.92rem; margin:0 0 22px; }
+  .login-card label { font-size:.85rem; color:var(--soft); display:block; margin-bottom:4px; }
+  .login-card input { font:inherit; font-weight:300; color:var(--ink); background:var(--bg); border:1px solid #e7ddd3;
+                       border-radius:10px; padding:10px 12px; width:100%; margin-bottom:14px; }
+  .login-card input:focus { outline:1px solid var(--deep); border-color:var(--deep); }
+  .login-card button { font:inherit; font-weight:500; background:var(--deep); color:#fff; border:none;
+                        border-radius:10px; padding:11px 0; width:100%; cursor:pointer; font-size:1rem; }
+  .login-card button:hover { background:#4f6449; }
+  .login-card .login-err { color:var(--bad); font-size:.88rem; min-height:1.2em; margin-top:8px; }
+
+  /* ---- Dashboard (hidden until authenticated) ---- */
+  #dashboard { display:none; }
   header.top { background:var(--blue); padding:22px 18px; }
   .wrap { max-width:960px; margin:0 auto; padding:0 18px; }
   header.top .wrap { padding:0; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
@@ -81,62 +98,87 @@
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <h1>🐾 Kelly's Cat Sitting — Admin</h1>
-    <a class="btn small" href="/" target="_blank" rel="noopener">View site</a>
+
+<!-- ============================================================
+     LOGIN SCREEN — shown until password is verified
+     ============================================================ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h1>🐾 Kelly's Cat Sitting</h1>
+    <p>Admin area — enter your password to continue.</p>
+    <form id="loginForm" autocomplete="on">
+      <label for="pwInput">Password</label>
+      <input id="pwInput" type="password" autocomplete="current-password" required autofocus />
+      <button type="submit" id="loginBtn">Sign in</button>
+      <p class="login-err" id="loginErr" role="alert"></p>
+    </form>
   </div>
-</header>
-<main class="wrap">
-  <nav class="nav" id="nav"></nav>
-  <p class="msg" id="msg" role="status"></p>
+</div>
 
-  <section id="tab-bookings">
-    <div class="toolbar">
-      <div><label for="search">Search name, contact, cat or address</label><input id="search" type="search" placeholder="Search…" /></div>
-      <div><label for="dateFilter">Visit date</label><input id="dateFilter" type="date" /></div>
-      <a class="btn" href="/api/admin/export.csv">Export CSV</a>
-    </div>
-    <div class="chips" id="chips"></div>
-    <div id="list"></div>
-  </section>
-
-  <section id="tab-calendar" class="hidden">
-    <div class="card">
-      <div class="cal-nav"><button id="prev" aria-label="Previous month">‹</button><strong id="calTitle"></strong><button id="next" aria-label="Next month">›</button></div>
-      <div class="cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-      <div class="cal-grid" id="grid"></div>
-      <div class="legend"><span><i style="background:var(--brand)"></i>Has bookings</span><span><i style="background:var(--bad)"></i>Slot full</span><span><i style="background:var(--faint)"></i>Blocked</span><span>Bars: morning · afternoon · evening</span></div>
-    </div>
-    <div class="card" id="dayPanel"><p class="sub" style="margin:0">Select a day to see its bookings or block it.</p></div>
-  </section>
-
-  <section id="tab-settings" class="hidden">
-    <div class="card">
-      <h2>Slot limit</h2>
-      <p class="sub">How many bookings each slot (morning, afternoon, evening) can hold per day. Pending and confirmed bookings count.</p>
-      <div class="row" style="align-items:end;max-width:320px">
-        <div style="flex:1"><label for="cap">Bookings per slot</label><input id="cap" type="number" min="1" max="20" /></div>
-        <button class="btn go" id="saveCap">Save</button>
+<!-- ============================================================
+     DASHBOARD — hidden until login succeeds
+     ============================================================ -->
+<div id="dashboard">
+  <header class="top">
+    <div class="wrap">
+      <h1>🐾 Kelly's Cat Sitting — Admin</h1>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <a class="btn small" href="/" target="_blank" rel="noopener">View site</a>
+        <button class="btn small" id="logoutBtn" type="button">Sign out</button>
       </div>
     </div>
-    <div class="card">
-      <h2>Block dates</h2>
-      <p class="sub">Vacation or personal days. Blocked dates and slots can't be booked.</p>
-      <div class="block-form">
-        <div><label for="blDate">Date</label><input id="blDate" type="date" /></div>
-        <div><label for="blSlot">Slot</label><select id="blSlot"><option value="">Whole day</option><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="evening">Evening</option></select></div>
-        <div><label for="blReason">Reason (private)</label><input id="blReason" type="text" maxlength="120" /></div>
-        <button class="btn go" id="addBlock">Block</button>
+  </header>
+  <main class="wrap">
+    <nav class="nav" id="nav"></nav>
+    <p class="msg" id="msg" role="status"></p>
+
+    <section id="tab-bookings">
+      <div class="toolbar">
+        <div><label for="search">Search name, contact, cat or address</label><input id="search" type="search" placeholder="Search…" /></div>
+        <div><label for="dateFilter">Visit date</label><input id="dateFilter" type="date" /></div>
+        <a class="btn" id="exportLink" href="/api/admin/export.csv">Export CSV</a>
       </div>
-      <div id="blockList" style="margin-top:14px"></div>
-    </div>
-    <div class="card">
-      <h2>New-booking alerts</h2>
-      <p class="sub" id="notifyInfo" style="margin:0"></p>
-    </div>
-  </section>
-</main>
+      <div class="chips" id="chips"></div>
+      <div id="list"></div>
+    </section>
+
+    <section id="tab-calendar" class="hidden">
+      <div class="card">
+        <div class="cal-nav"><button id="prev" aria-label="Previous month">‹</button><strong id="calTitle"></strong><button id="next" aria-label="Next month">›</button></div>
+        <div class="cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+        <div class="cal-grid" id="grid"></div>
+        <div class="legend"><span><i style="background:var(--brand)"></i>Has bookings</span><span><i style="background:var(--bad)"></i>Slot full</span><span><i style="background:var(--faint)"></i>Blocked</span><span>Bars: morning · afternoon · evening</span></div>
+      </div>
+      <div class="card" id="dayPanel"><p class="sub" style="margin:0">Select a day to see its bookings or block it.</p></div>
+    </section>
+
+    <section id="tab-settings" class="hidden">
+      <div class="card">
+        <h2>Slot limit</h2>
+        <p class="sub">How many bookings each slot (morning, afternoon, evening) can hold per day. Pending and confirmed bookings count.</p>
+        <div class="row" style="align-items:end;max-width:320px">
+          <div style="flex:1"><label for="cap">Bookings per slot</label><input id="cap" type="number" min="1" max="20" /></div>
+          <button class="btn go" id="saveCap">Save</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Block dates</h2>
+        <p class="sub">Vacation or personal days. Blocked dates and slots can't be booked.</p>
+        <div class="block-form">
+          <div><label for="blDate">Date</label><input id="blDate" type="date" /></div>
+          <div><label for="blSlot">Slot</label><select id="blSlot"><option value="">Whole day</option><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="evening">Evening</option></select></div>
+          <div><label for="blReason">Reason (private)</label><input id="blReason" type="text" maxlength="120" /></div>
+          <button class="btn go" id="addBlock">Block</button>
+        </div>
+        <div id="blockList" style="margin-top:14px"></div>
+      </div>
+      <div class="card">
+        <h2>New-booking alerts</h2>
+        <p class="sub" id="notifyInfo" style="margin:0"></p>
+      </div>
+    </section>
+  </main>
+</div>
 
 <div class="modal-bg" id="modalBg">
   <form class="modal" id="editForm">
@@ -168,6 +210,76 @@
   var state = { tab: "bookings", filter: "pending", bookings: [], blocks: [], capacity: 3, month: new Date(), sel: null, editing: null };
   state.month.setDate(1);
 
+  // ---- Auth ----------------------------------------------------------------
+  // Credentials are kept in sessionStorage so a page refresh keeps you logged
+  // in for the tab's lifetime but a new tab starts fresh.
+  var _creds = sessionStorage.getItem("admin_creds") || "";
+
+  function showLogin(errText) {
+    document.getElementById("dashboard").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+    if (errText) document.getElementById("loginErr").textContent = errText;
+    // Clear bad creds so we don't loop
+    _creds = "";
+    sessionStorage.removeItem("admin_creds");
+  }
+
+  function showDashboard() {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var pw = document.getElementById("pwInput").value;
+    if (!pw) return;
+    var btn = document.getElementById("loginBtn");
+    btn.disabled = true;
+    btn.textContent = "Checking…";
+    _creds = btoa("admin:" + pw);
+    // Verify by hitting a lightweight admin endpoint.
+    fetch("/api/admin/settings", { headers: { "Authorization": "Basic " + _creds } })
+      .then(function (r) {
+        btn.disabled = false;
+        btn.textContent = "Sign in";
+        if (r.status === 401 || r.status === 429) {
+          var errMsg = r.status === 429
+            ? "Too many attempts — wait 15 minutes."
+            : "Wrong password.";
+          document.getElementById("loginErr").textContent = errMsg;
+          _creds = "";
+          sessionStorage.removeItem("admin_creds");
+          document.getElementById("pwInput").value = "";
+          document.getElementById("pwInput").focus();
+        } else if (!r.ok) {
+          document.getElementById("loginErr").textContent = "Server error — try again.";
+          _creds = "";
+          sessionStorage.removeItem("admin_creds");
+        } else {
+          sessionStorage.setItem("admin_creds", _creds);
+          showDashboard();
+          load();
+          setInterval(function () { if (!state.editing) load(); }, 30000);
+        }
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = "Sign in";
+        document.getElementById("loginErr").textContent = "Network error — try again.";
+        _creds = "";
+        sessionStorage.removeItem("admin_creds");
+      });
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    sessionStorage.removeItem("admin_creds");
+    _creds = "";
+    document.getElementById("pwInput").value = "";
+    document.getElementById("loginErr").textContent = "";
+    showLogin();
+  });
+
+  // ---- API helper ----------------------------------------------------------
   function $(id) { return document.getElementById(id); }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   function pad(n) { return String(n).padStart(2, "0"); }
@@ -175,15 +287,43 @@
   function fmt(k) { return new Date(k + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }); }
   function cap1(s) { return s[0].toUpperCase() + s.slice(1); }
   function msg(text, ok) { var m = $("msg"); m.textContent = text || ""; m.className = "msg " + (text ? (ok ? "ok" : "err") : ""); }
+
   function api(path, method, body) {
-    var opts = { method: method || "GET" };
-    if (body) { opts.headers = { "Content-Type": "application/json" }; opts.body = JSON.stringify(body); }
+    var opts = { method: method || "GET", headers: {} };
+    if (_creds) opts.headers["Authorization"] = "Basic " + _creds;
+    if (body) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
     return fetch(path, opts).then(function (r) {
-      return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || "Request failed"); return j; });
+      if (r.status === 401 || r.status === 429) {
+        var errMsg = r.status === 429
+          ? "Too many attempts — wait 15 minutes and reload."
+          : "Session expired. Please sign in again.";
+        showLogin(errMsg);
+        return Promise.reject(new Error(errMsg));
+      }
+      if (!r.ok) return r.json().then(function (j) { throw new Error(j.error || "Request failed"); });
+      return r.json();
     });
   }
   function fail(e) { msg(e.message); }
 
+  // ---- Keep the Export CSV link credentialed --------------------------------
+  // The <a href> download won't carry the Authorization header, so we intercept
+  // it and fetch the CSV manually, then trigger a blob download.
+  document.getElementById("exportLink").addEventListener("click", function (e) {
+    e.preventDefault();
+    var opts = { headers: { "Authorization": "Basic " + _creds } };
+    fetch("/api/admin/export.csv", opts).then(function (r) {
+      if (!r.ok) { msg("Export failed."); return; }
+      return r.blob().then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = "bookings.csv"; a.click();
+        URL.revokeObjectURL(url);
+      });
+    }).catch(function () { msg("Export failed."); });
+  });
+
+  // ---- Dashboard logic (unchanged from original) ---------------------------
   function load() {
     return Promise.all([api("/api/admin/bookings"), api("/api/admin/blocks"), api("/api/admin/settings")]).then(function (r) {
       state.bookings = r[0].bookings; state.blocks = r[1].blocks; state.capacity = r[2].capacity; state.notify = r[2].notify;
@@ -394,7 +534,7 @@
     var n = state.notify || {};
     $("notifyInfo").textContent = n.push || n.webhook
       ? "Alerts are on:" + (n.push ? " phone push" : "") + (n.email ? " + email" : "") + (n.webhook ? " + webhook" : "") + "."
-      : "Alerts are off. Start the server with NTFY_TOPIC (phone push; add NOTIFY_EMAIL to also get email) and/or NOTIFY_WEBHOOK_URL to be told when a booking comes in.";
+      : "Alerts are off. Set NTFY_TOPIC (phone push; add NOTIFY_EMAIL to also get email) and/or NOTIFY_WEBHOOK_URL as environment variables in your Cloudflare Pages project to be told when a booking comes in.";
   }
   $("saveCap").addEventListener("click", function () {
     api("/api/admin/settings", "POST", { capacity: Number($("cap").value) }).then(function () { msg("Slot limit saved.", true); return load(); }).catch(fail);
@@ -407,12 +547,22 @@
 
   function render() { renderNav(); renderBookings(); renderCalendar(); renderSettings(); }
 
-  if (location.protocol === "file:") {
-    msg("Open this page through the server: run node server.js, then visit http://localhost:3000/admin");
-  } else {
-    load();
-    setInterval(function () { if (!state.editing) load(); }, 30000);
+  // ---- Boot: skip login screen if creds are already in sessionStorage ------
+  if (_creds) {
+    // Validate saved creds before showing the dashboard.
+    fetch("/api/admin/settings", { headers: { "Authorization": "Basic " + _creds } })
+      .then(function (r) {
+        if (r.ok) {
+          showDashboard();
+          load();
+          setInterval(function () { if (!state.editing) load(); }, 30000);
+        } else {
+          showLogin(r.status === 429 ? "Too many attempts — wait 15 minutes." : "");
+        }
+      })
+      .catch(function () { showLogin(); });
   }
+  // Otherwise the login screen is already visible (default state).
 </script>
 </body>
 </html>
